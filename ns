@@ -1,0 +1,9 @@
+#!/bin/bash 
+if [ $# -eq 0 ] || [ $1 = "-h" ] || [ $1 = "--help" ] ; then
+    echo -e "usage: ns new_script.bash\n\tcreates a new script and starts editing it"
+    exit
+fi
+script=$1
+touch $script
+echo -e '#!/bin/bash\n' > $script
+emacs $script && chmod +x $script

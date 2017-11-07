@@ -1,0 +1,25 @@
+#!/bin/bash
+# superstat - print out the current status of each of the repositories in the current workspace
+
+# check if we are in a ros workspace, so we can move into the src directory where all of the repos are stored
+if [[ -e src ]] ; then
+    pushd src
+else
+    pushd .
+fi > /dev/null
+
+# print out the status of each repo
+for i in */ ;
+do
+    echo "-- $i --";
+    if [[ -e "$i"/.hg ]] ; then
+	hg stat -R $i ;
+    elif [[ -e "$i"/.git ]] ; then
+	git -C $i status -s
+    elif [[ -e "$i"/.svn ]] ; then
+	cd $i && svn stat && cd -
+    fi
+done
+
+# jump back if necessary
+popd > /dev/null
