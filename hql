@@ -6,5 +6,5 @@ if [[ -d .git ]] || git rev-parse --is-inside-work-tree ; then
     # TODO: make lg1 have a date before the abbreviated commit message
     git lg1
 elif [[ -e .hg ]] || hg root &> /dev/null && echo true || echo false ; then
-    hg log --graph --template "{label('custom.rev',rev)}{label('custom.branch',ifeq(branch,'default','',' {branch}'))}{if(bookmarks,' {bookmarks}')}{if(tags,' {tags}')} - {label('custom.date',date|age)} - {desc|firstline}"
+    hg log --graph --template "{label('custom.rev',rev)}{label('custom.branch',ifeq(branch,'default','',' {branch}'))}{if(bookmarks,' {bookmarks}')}{if(tags,' {tags}')} - {label('custom.date',date|age)} by {label('custom.author',author|person)} - {desc|firstline}"
 fi
