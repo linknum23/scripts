@@ -1,2 +1,22 @@
 #!/bin/bash
-ls -d .*/ */
+# lsd - list all directories
+# ls errors out if there aren't any directories, causing $? to be > 0
+# we use this to figure out if we should call ls at all so that we avoid errors
+# TODO: this is overly complex, can't we just use bash expansion into a list then check if that list is not empty?
+if [[ $# -gt 0 ]]; then
+   if [[ $1 != '-h' && $1 != '-help' ]]; then
+       echo "unexpected arg"
+   fi
+   echo "lsd - list all directories"
+   exit 0
+fi
+ls */ >/dev/null 2>&1
+has_normal_dirs=$(($? == 0))
+ls .*/ >/dev/null 2>&1
+has_dot_dirs=$(($? == 0))
+if [[ "$has_normal_dirs" == 1 ]] ; then
+    # print all types of dirs (does not matter if there are only normal dirs)
+    ls --color=always -d .*/ */
+elif [[ "$has_dot_dirs" == 1 ]] ; then
+    ls --color=always -d .*/
+fi
