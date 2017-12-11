@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Statically mount the dataspeed private share
+# Usage: mount_private.bash [username] password
+# If the username for the DSIDC server and the local username are the same,
+# then you can omit the username parameter
+
+set -e
+
+if [ $# -eq 1 ]; then
+    user=$USER
+    pass=$1
+elif [ $# -eq 2 ]; then
+    user=$1
+    pass=$2
+else
+    echo "Usage: $0 [username] password"
+    exit 1
+fi
+
+if [ $(dpkg -s cifs-utils | grep Status | grep -c installed) -eq 0 ]; then
+    sudo apt install cifs-utils
+fi
+
+mkdir -p /home/$USER/dsidc/private
+printf "username=$user\npassword=$pass\n" > ~/.dscredentials
+chmod 600 ~/.dscredentials
+echo "//dsidc/private /home/$USER/dsidc/private cifs uid=$USER,gid=$USER,credentials=/home/$USER/.dscredentials,sec=ntlm 0 0" | sudo tee -a /etc/fstab >> /dev/null
+
+echo "Credentials are stored in ~/.dscredentials"
+echo "Run 'sudo mount -a' to mount immediately"
+
