@@ -28,10 +28,12 @@ if [ $# -eq 1 ]; then
 elif [ $# -eq 2 ]; then
     user=$2
 else
-    echo "Usage: $0 //server/share [username]"
+    echo "Usage: static_mount_cifs //server/share [username]"
     exit 1
 fi
 
+# Grab server name and share name
+# TODO: replace spaces with \040 in share name
 server=$(echo $1 | sed "s@^//\(.*\)/.*@\1@")
 share=$(echo $1 | sed "s@^//.*/\(.*\)@\1@")
 
@@ -45,15 +47,19 @@ printf "username=$user\npassword=$pass\n" > ~/$creds
 chmod 600 ~/$creds
 
 # Check for a valid share name
-if [ $(smbclient -L //$server -A ~/$creds -g 2>/dev/null | grep -ic $share) -gt 0 ]; then
-    echo "//$server/$share /home/$USER/mnt/$server/$share cifs credentials=/home/$USER/$creds,_netdev,uid=$USER,gid=$USER,iocharset=utf8 0 0" | sudo tee -a /etc/fstab >> /dev/null
-else
+if [ $(smbclient -L //$server -A ~/$creds -g 2>/dev/null | grep -ic $share) -eq 0 ]; then
     echo "Error: Can't find $share at //$server"
     exit 1
 fi
-# Apparently _netdev isn't enough for smb shares, call mount -a on if-up
-#printf "#!/bin/sh\nmount -a\n" | sudo tee /etc/network/if-up.d/connect_netshares
-#sudo chmod +x /etc/network/if-up.d/connect_netshares
+
+# Backup fstab
+sudo cp /etc/fstab /etc/fstab.bak
+
+# Delete any existing entry for the share
+sudo sed -i "/\/\/$server\/$share/d" /etc/fstab
+
+# Add a new entry for the share
+echo "//$server/$share /home/$USER/mnt/$server/$share cifs credentials=/home/$USER/$creds,uid=$USER,gid=$USER,iocharset=utf8 0 0" | sudo tee -a /etc/fstab >> /dev/null
 
 echo "Credentials are stored in ~/$creds"
 echo "Run 'sudo mount -a' to mount immediately"
