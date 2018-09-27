@@ -1,8 +1,48 @@
 #!/bin/bash
+
+# Big display always shows up as DP-5
+display="DP-5"
+
+# grab the current workspace, this will be the one moved
+ws_to_move=$(i3-msg -t get_workspaces | jq -r '.[] | select(.focused==true).name')
+
+# load/reload the new monitor config
 ~/.screenlayout/extended.sh
 
-# Testing redoing this for next time
-sleep 1
-~/.screenlayout/extended.sh
+# check if there is a second monitor, if not fail fast
+sleep 0.5
+num_monitors=$(i3-msg -t get_workspaces | jq -s add | jq 'unique_by(.output) | length')
+if [[ $num_monitors -eq 1 ]]; then
+    echo "only one monitor available"
+    return -1 2> /dev/null || exit -1
+fi
 
-i3-msg move workspace to right
+# attempt to move workspace to new monitor
+ws_moved=0
+attempts=0
+while [ $ws_moved -eq 0 ] && [ $attempts -lt 15 ]; do
+    attempts=$(($attempts+1))
+    i3-msg workspace ${ws_to_move}      # make sure this workspace is focused, 'i3-msg move workspace' can only move the focused workspace
+    i3-msg move workspace to ${display}
+
+    # verify workspace was moved
+    ws_on_disp=($(i3-msg -t get_workspaces | jq -r '.[] | select(.output=="'${display}'").name'))
+    if [ ${#ws_on_disp[@]} -eq 0 ]; then
+	echo "no workspace moved"
+    else
+	for ws in "${ws_on_disp[@]}"; do
+	    [ $ws_to_move -eq $ws ] && ws_moved=1
+	done
+    fi
+    # if the move fails it seems to fail due to timing
+    # TEST: wait a bit and see if it works
+    if [ $ws_moved -eq 0 ]; then
+	sleep 1
+    fi
+done
+
+if [ $ws_moved -eq 1 ]; then
+    echo "workspace moved"
+else
+    echo "workspace move failed"
+fi
