@@ -5,5 +5,9 @@ if [ $# -eq 0 ] || [ $1 = "-h" ] || [ $1 = "--help" ] ; then
 fi
 script=$1
 touch $script
-echo -e '#!/bin/bash\n' > $script
+if [ ${script: -3} == ".py" ] ;then
+    echo -e '#!/bin/python\n' > $script
+else
+    echo -e '#!/bin/bash\n' > $script
+fi
 emacs $script && chmod +x $script
