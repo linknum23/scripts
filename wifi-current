@@ -1,0 +1,3 @@
+#!/bin/bash
+id=( `nmcli -s connection show --active | grep wlan0` ) # grab the first value returned, the wifi id
+echo $id

@@ -6,7 +6,7 @@ fi
 script=$1
 touch $script
 if [ ${script: -3} == ".py" ] ;then
-    echo -e '#!/bin/python\n' > $script
+    echo -e '#!/usr/bin/python3\n' > $script
 else
     echo -e '#!/bin/bash\n' > $script
 fi

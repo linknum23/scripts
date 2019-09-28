@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ $#  -gt 0 ]; then
+    id=$1
+else
+    id=$(wifi-current)
+fi
+pass=$(nmcli -s c show $id | grep .psk: | grep .psk: | grep -oE '[^:]+$' | sed -e 's/^[[:space:]]*//')
+echo "\"$pass\""

@@ -1,0 +1,4 @@
+#!/bin/bash
+# Take a screenshot, using the mouse to select the region to save
+read -n1 -r -p "Press any key to start selecting using the mouse" key
+scrot --select '%Y-%m-%d_$wx$h.png' -e 'mv $f ~/snips/ && echo -e "\nSaved snip as ~/snips/$f"'

@@ -1,2 +1,4 @@
 #!/bin/bash
-sudo nmap -T5 -sP 10.20.0.0/22 # scan the whole subnet 10.20.0.X - 10.20.3.X
+sudo nmap -T5 -sP 10.0.0.0/22 # scan the whole subnet 10.0.0.X - 10.20.3.X
+# there are many more subnets now that the network has been re-architected
+# goto netbox.corp.dataspeedinc.com

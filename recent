@@ -1,0 +1,2 @@
+#!/bin/bash
+find . -mtime 0 -printf '%T+\t%s\t%p\n' 2>/dev/null | sort -r | less

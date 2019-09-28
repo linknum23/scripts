@@ -1,0 +1,4 @@
+#!/bin/bash
+# TODO prompt for N
+git reset --soft HEAD~$N &&
+git commit

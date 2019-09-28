@@ -1,0 +1,5 @@
+#!/bin/bash
+# use for reading/parsing files from the internetz
+# Motivating Example:
+# wget -qO- http://packages.microsoft.com/ubuntu/18.04/prod/dists/bionic/main/binary-amd64/Packages | grep Package: | uniq | sed -e 's/Package: //g'
+wget -qO- $1

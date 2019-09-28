@@ -1,0 +1,5 @@
+#!/bin/bash
+# .ovpn config file uses relative paths to keys from current dir...
+pushd ~/.vpn/dataspeed-llorenz
+sudo openvpn --config dsi-llorenz.ovpn
+popd

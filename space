@@ -1,0 +1,3 @@
+#!/bin/bash
+du --human-readable --max-depth=3 --threshold=500M | sort --human-numeric-sort --reverse
+echo "Use ncdu for an ncurses driven exploration"

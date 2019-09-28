@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo nmap -T5 -sP 10.0.0.0/24

@@ -1,0 +1,2 @@
+#!/bin/bash
+perl -i -p0e 's/\[ui\]\n\# name and email \(local to this repository, optional\), e\.g\.\n\# username = Jane Doe <jdoe\@example\.com>/[ui]\nusername = Lincoln Lorenz <llorenz\@dataspeedinc.com>/igs' .hg/hgrc

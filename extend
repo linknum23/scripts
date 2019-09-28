@@ -31,7 +31,7 @@ while [ $ws_moved -eq 0 ] && [ $attempts -lt 15 ]; do
 	echo "no workspace moved"
     else
 	for ws in "${ws_on_disp[@]}"; do
-	    [ $ws_to_move -eq $ws ] && ws_moved=1
+	    [ "$ws_to_move" -eq "$ws" ] && ws_moved=1
 	done
     fi
     # if the move fails it seems to fail due to timing

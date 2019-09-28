@@ -1,0 +1,7 @@
+#!/bin/bash
+num_mplabs=`jps -v | grep -c mplab`
+if [ "0" -lt "$num_mplabs" ] ; then
+    kill `jps -v | grep mplab | awk '{print $1;}'`
+else
+    echo "no mplabs to kill :/"
+fi
