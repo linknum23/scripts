@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Statically mount a shared cifs share
+# Usage: static_mount_cifs //server/share [username]
+# If the username for the DSIDC server and the local username are the same,
+# then you can omit the username parameter
+
+set -e
+
+# Check for smbclient package
+if [ $(dpkg -s smbclient | grep Status | grep -c installed) -eq 0 ]; then
+    sudo apt install smbclient -y
+fi
+
+# Check for cifs-utils package
+if [ $(dpkg -s cifs-utils | grep Status | grep -c installed) -eq 0 ]; then
+    sudo apt install cifs-utils -y
+fi
+
+# Fix smb warning
+if [ $(grep -c "^\s*syslog = 0" /etc/samba/smb.conf) -gt 0 ]; then
+    echo "Fixing depricated samba setting"
+    sudo sed -i "s/^\s*#*\s*syslog = 0/#syslog = 0/g" /etc/samba/smb.conf
+fi
+
+# Check inputs
+if [ $# -eq 1 ]; then
+    user=$USER
+elif [ $# -eq 2 ]; then
+    user=$2
+else
+    echo "Usage: static_mount_cifs //server/share [username]"
+    exit 1
+fi
+
+# Grab server name and share name
+# TODO: replace spaces with \040 in share name
+server=$(echo $1 | sed "s@^//\(.*\)/.*@\1@")
+share=$(echo $1 | sed "s@^//.*/\(.*\)@\1@")
+
+echo "Enter password to access share:"
+read -s pass
+
+# Create credentials file
+mkdir -p /home/$USER/mnt/$server/$share
+creds=.$(echo $server)_$(echo $share)_credentials
+printf "username=$user\npassword=$pass\n" > ~/$creds
+chmod 600 ~/$creds
+
+# Check for a valid share name
+if [ $(smbclient -L //$server -A ~/$creds -g 2>/dev/null | grep -ic $share) -eq 0 ]; then
+    echo "Error: Can't find $share at //$server"
+    exit 1
+fi
+
+# Backup fstab
+sudo cp /etc/fstab /etc/fstab.bak
+
+# Delete any existing entry for the share
+sudo sed -i "/\/\/$server\/$share/d" /etc/fstab
+
+# Add a new entry for the share
+echo "//$server/$share /home/$USER/mnt/$server/$share cifs credentials=/home/$USER/$creds,uid=$USER,gid=$USER,iocharset=utf8 0 0" | sudo tee -a /etc/fstab >> /dev/null
+
+echo "Credentials are stored in ~/$creds"
+echo "Run 'sudo mount -a' to mount immediately"
+
